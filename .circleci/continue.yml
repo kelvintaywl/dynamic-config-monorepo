@@ -1,0 +1,68 @@
+version: 2.1
+
+parameters:
+  server-changed:
+    type: boolean
+    default: false
+  client-changed:
+    type: boolean
+    default: false
+
+jobs:
+  test-server:
+    docker:
+      - image: cimg/base:stable
+    resource_class: small
+    steps:
+      - checkout
+      - run: echo "mock server tests!"
+  build-and-test-client:
+    docker:
+      - image: cimg/base:stable
+    resource_class: small
+    steps:
+      - checkout
+      - run: echo "mock client tests!"
+  build-and-test-integration:
+    docker:
+      - image: cimg/base:stable
+    resource_class: small
+    steps:
+      - checkout
+      - run: echo "mock integration tests!"
+  build-and-upload-docker:
+    docker:
+      - image: cimg/base:stable
+    resource_class: small
+    steps:
+      - checkout
+      - run: echo "mock Docker builds and pushes!"
+workflows:
+  server-only:
+    when:
+      and:
+        - << pipeline.parameters.server-changed >>
+        - not: << pipeline.parameters.client-changed >>
+    jobs:
+      - test-server
+  client-only:
+    when:
+      and:
+        - << pipeline.parameters.client-changed >>
+        - not: << pipeline.parameters.server-changed >>
+    jobs:
+      - build-and-test-client
+  full-suite:
+    when:
+      and:
+        - << pipeline.parameters.server-changed >>
+        - << pipeline.parameters.client-changed >>
+    jobs:
+      - test-server
+      - build-and-test-client
+      - build-and-test-integration
+      - build-and-upload-docker:
+          requires:
+            - test-server
+            - build-and-test-client
+            - build-and-test-integration

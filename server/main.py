@@ -1,1 +1,1 @@
-print("server is running")
+print("Server is running")

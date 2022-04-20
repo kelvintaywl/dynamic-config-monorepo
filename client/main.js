@@ -1,1 +1,1 @@
-console.log("client is working");
+console.log("Client is working");
